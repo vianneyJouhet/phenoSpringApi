@@ -29,7 +29,6 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
 import org.springframework.core.io.ClassPathResource;
 
-import jdk.internal.jline.internal.Log;
 
 @SpringBootApplication
 public class PhenoSpringApiApplication {
