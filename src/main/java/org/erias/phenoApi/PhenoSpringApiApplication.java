@@ -28,6 +28,8 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
 import org.springframework.core.io.ClassPathResource;
+import org.springframework.web.servlet.config.annotation.CorsRegistry;
+import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 
 @SpringBootApplication
@@ -39,6 +41,15 @@ public class PhenoSpringApiApplication {
 		SpringApplication.run(PhenoSpringApiApplication.class, args);
 	}
 
+	@Bean
+	public  WebMvcConfigurer corsConfigurer () {
+		return new WebMvcConfigurer() {
+			@Override
+			public void addCorsMappings(CorsRegistry registry) {
+				registry.addMapping("/").allowedOrigins("http://localhost").allowedOrigins("http://10.144.210.194");
+			}
+		};
+	}
 	@Bean
 	public CommandLineRunner demo(IndexDocRepository loader, ThesaurusEnrsemService thesaurusEnrsemServiceImpl,
 			ThesaurusEnrsemRepository thEnrsemLoader, @Value("${sparql.protocol}") String protocol,
