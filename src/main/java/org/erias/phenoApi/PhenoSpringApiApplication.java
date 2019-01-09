@@ -41,15 +41,15 @@ public class PhenoSpringApiApplication {
 		SpringApplication.run(PhenoSpringApiApplication.class, args);
 	}
 
-	@Bean
-	public  WebMvcConfigurer corsConfigurer () {
-		return new WebMvcConfigurer() {
-			@Override
-			public void addCorsMappings(CorsRegistry registry) {
-				registry.addMapping("/").allowedOrigins("http://localhost","http://10.144.210.194");
-			}
-		};
-	}
+//	@Bean
+//	public  WebMvcConfigurer corsConfigurer () {
+//		return new WebMvcConfigurer() {
+//			@Override
+//			public void addCorsMappings(CorsRegistry registry) {
+//				registry.addMapping("**").allowedOrigins("http://localhost");
+//			}
+//		};
+//	}
 	@Bean
 	public CommandLineRunner demo(IndexDocRepository loader, ThesaurusEnrsemService thesaurusEnrsemServiceImpl,
 			ThesaurusEnrsemRepository thEnrsemLoader, @Value("${sparql.protocol}") String protocol,
