@@ -34,7 +34,7 @@ public class GraphMapperController {
 		this.graphMapper = new GraphMapper(protocol, url, port, namespace);
 	}
 	
-	@CrossOrigin(origins = "http://localhost")
+//	@CrossOrigin(origins = "http://localhost")
 	@RequestMapping(value = "/graph-mapping",method = RequestMethod.POST )
 	public HashMap<String, Set<String>> getLabelMappings(@RequestBody(required=true) Set<String> uris) {
 		log.info("start getLabelMappings");

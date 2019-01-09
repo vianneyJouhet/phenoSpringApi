@@ -46,7 +46,7 @@ public class PhenoSpringApiApplication {
 		return new WebMvcConfigurer() {
 			@Override
 			public void addCorsMappings(CorsRegistry registry) {
-				registry.addMapping("/").allowedOrigins("http://localhost").allowedOrigins("http://10.144.210.194");
+				registry.addMapping("/").allowedOrigins("http://localhost","http://10.144.210.194");
 			}
 		};
 	}

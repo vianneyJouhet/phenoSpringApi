@@ -53,7 +53,7 @@ public class JQCloudController {
 		this.labelMapper = new LabelMapper(sparqlProtocol, sparqlUrl, sparqlPort, sparqlNamespace);
 	}
 	
-	@CrossOrigin(origins = "http://localhost")
+//	@CrossOrigin(origins = "http://localhost")
 	@RequestMapping(value = "/jq-cloud",method = RequestMethod.POST )
 	public Map<String,Set<Object>>  getJQCloud(@RequestBody(required=true) String cohorte) {
 		

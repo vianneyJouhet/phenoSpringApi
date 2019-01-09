@@ -15,7 +15,7 @@ public class IndexDocController {
 	@Autowired
 	private IndexDocRepository  indexDocRepo;
 	
-	@CrossOrigin(origins = "http://localhost")
+//	@CrossOrigin(origins = "http://localhost")
 	@RequestMapping(value= "/cohorte/list",method = RequestMethod.GET)
 	public List<String> listCohorte(){
 		return indexDocRepo.findDistinctCohorte();
