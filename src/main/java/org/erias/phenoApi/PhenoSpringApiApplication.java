@@ -3,6 +3,7 @@ package org.erias.phenoApi;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
+import java.io.InputStreamReader;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -26,6 +27,7 @@ import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
+import org.springframework.core.io.ClassPathResource;
 
 import jdk.internal.jline.internal.Log;
 
@@ -50,8 +52,10 @@ public class PhenoSpringApiApplication {
 			log.info("Rett ==> " + Long.toString(nLignes));
 			log.info("-------------------------");
 			if (nLignes.intValue() == 0) {
+//				BufferedReader reader = new BufferedReader(
+//						new FileReader(new File("src/main/resources/extract/resultsIndexRett.csv")));
 				BufferedReader reader = new BufferedReader(
-						new FileReader(new File("src/main/resources/extract/resultsIndexRett.csv")));
+						new InputStreamReader(new ClassPathResource("extract/resultsIndexRett.csv").getInputStream()));
 
 				log.info("loading file Rett");
 				// SQLConnector psClient= new PostgresClient(Config.POSTGRES_HOST,
@@ -82,7 +86,7 @@ public class PhenoSpringApiApplication {
 			log.info("-------------------------");
 			if (nLignes.intValue() == 0) {
 				BufferedReader reader = new BufferedReader(
-						new FileReader(new File("src/main/resources/extract/resultsIndexRamdom.csv")));
+						new InputStreamReader(new ClassPathResource("extract/resultsIndexRamdom.csv").getInputStream()));
 
 				log.info("loading file Ramdom");
 				// SQLConnector psClient= new PostgresClient(Config.POSTGRES_HOST,
