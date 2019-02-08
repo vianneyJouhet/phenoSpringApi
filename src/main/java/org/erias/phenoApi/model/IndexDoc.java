@@ -7,6 +7,8 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
 
+import org.hibernate.annotations.Formula;
+
 @Entity
 @Table(name="indexdoc")
 
@@ -32,7 +34,8 @@ public class IndexDoc {
 	private String termfoundInText;
 	@Column(name="cohorte")
 	private String cohorte;
-	
+	@Formula("concat(patientnum, cohorte)") 
+	private String patientId;
 	protected IndexDoc() {}
 	
 	/**

@@ -1,4 +1,4 @@
-package org.erias.phenoApi.service;
+package org.erias.phenoApi.model;
 
 public class EntityContext {
 	private String uri;

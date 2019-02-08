@@ -1,7 +1,5 @@
 package org.erias.phenoApi.service;
 
-import java.net.MalformedURLException;
-import java.net.URL;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -11,42 +9,49 @@ import java.util.stream.Stream;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.eclipse.rdf4j.query.BindingSet;
+import org.erias.phenoApi.repository.rdf4j.RDF4JRepositoryImpl;
+import org.springframework.beans.factory.annotation.Value;
 
 import fr.chu.bordeaux.RDF4JClient.services.RDF4JClient;
 
-public class GraphMapper {
+public class GraphMapper extends RDF4JRepositoryImpl {
 
 	protected static final Logger log = LogManager.getLogger(GraphMapper.class);
 
 	private String sparqlEndpoint;
 	private HashMap<String,Set<String>> graphMap;
+	@Value("${sparql.protocol}") 
+	private static String protocol;
+	@Value("${sparql.port}") 
+	private static int port;
+	@Value("${sparql.domain}") 
+	private static String url;
+	@Value("${sparql.endpoint}")
+	private static String namespace;
 	
 	public GraphMapper(String protocol, String url, int port, String namespace,Stream<String> uris) {
-		try {
-			this.sparqlEndpoint = new URL(protocol, url, port, namespace).toExternalForm();
+			super(protocol, url, port, namespace);
 			this.setGraphMap(getTermInfo(uris));
-		} catch (MalformedURLException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+		
+	}
+	
+	public GraphMapper(Stream<String> uris) {
+		super(protocol, url, port, namespace);
+		this.setGraphMap(getTermInfo(uris));
+	
 	}
 	
 	public GraphMapper(String protocol, String url, int port, String namespace) {
-		try {
-			this.sparqlEndpoint = new URL(protocol, url, port, namespace).toExternalForm();
-		} catch (MalformedURLException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+		super(protocol, url, port, namespace);
+	}
+	
+	public GraphMapper() {
+		super(protocol, url, port, namespace);
 	}
 	
 	public HashMap<String,Set<String>> getTermInfo(Stream<String> values) {
 		
-		String v = values
-				.map(u -> "<"  + u + ">")
-				.reduce("", String::concat);
-		
-		RDF4JClient client = new RDF4JClient(this.sparqlEndpoint);
+		String v = toUriList(values);
 		
 		log.info(v);
 		String query = "" + "prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#>\n"
@@ -61,9 +66,7 @@ public class GraphMapper {
 				+ "	} \n" 
 				+ "} \n";
 
-		List<BindingSet> res = client.execTupleQuery(query);
-		log.info("Number of label entries : " + res.size());
-		client.close();
+		List<BindingSet> res = execSelectQuery(query);
 		HashMap<String,Set<String>> terminfo=new HashMap<String,Set<String>>();
 		res.stream()
 				.forEach(b -> {

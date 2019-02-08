@@ -40,6 +40,10 @@ public class IndexDocIdf {
 	private float idf;
 	@Column(name="frequency")
 	private long frequency;
+	@Column(name="icsanchez")
+	private Double icSanchez;
+	@Column(name="inferedMetrics")
+	private boolean inferedMetrics;
 	
 	protected IndexDocIdf() {}
 
@@ -58,7 +62,7 @@ public class IndexDocIdf {
 	 * @param frequency
 	 */
 	public IndexDocIdf(Long id, String patientNum, String documentNum, String certainty, String context, String code,
-			String term, String termfoundInText, String cohorte, String label, float idf, long frequency) {
+			String term, String termfoundInText, String cohorte, String label, float idf, long frequency,boolean inferedMetrics) {
 		super();
 		this.id = id;
 		this.patientNum = patientNum;
@@ -69,9 +73,33 @@ public class IndexDocIdf {
 		this.term = term;
 		this.termfoundInText = termfoundInText;
 		this.cohorte = cohorte;
-		this.label = label;
+		if (label == null) {
+			this.label = "null";
+		}else {
+			this.label = label;
+		}
 		this.idf = idf;
 		this.frequency = frequency;
+		this.inferedMetrics = inferedMetrics;
+	}
+
+	/**
+	 * @return the inferedMetrics
+	 */
+	public boolean isInferedMetrics() {
+		return inferedMetrics;
+	}
+
+	/**
+	 * @param inferedMetrics the inferedMetrics to set
+	 */
+	public void setInferedMetrics(boolean inferedMetrics) {
+		this.inferedMetrics = inferedMetrics;
+	}
+
+	public IndexDocIdf(String code, String label) {
+		this.code=code;
+		this.label=label;
 	}
 
 	/* (non-Javadoc)
@@ -82,7 +110,7 @@ public class IndexDocIdf {
 		return "IndexDocIdf [id=" + id + ", patientNum=" + patientNum + ", documentNum=" + documentNum + ", certainty="
 				+ certainty + ", context=" + context + ", code=" + code + ", term=" + term + ", termfoundInText="
 				+ termfoundInText + ", cohorte=" + cohorte + ", label=" + label + ", idf=" + idf + ", frequency="
-				+ frequency + "]";
+				+ frequency + ", icSanchez=" + icSanchez + "]";
 	}
 
 	/* (non-Javadoc)
@@ -98,10 +126,9 @@ public class IndexDocIdf {
 		result = prime * result + ((context == null) ? 0 : context.hashCode());
 		result = prime * result + ((documentNum == null) ? 0 : documentNum.hashCode());
 		result = prime * result + (int) (frequency ^ (frequency >>> 32));
+		result = prime * result + ((icSanchez == null) ? 0 : icSanchez.hashCode());
 		result = prime * result + ((id == null) ? 0 : id.hashCode());
-		long temp;
-		temp = Double.doubleToLongBits(idf);
-		result = prime * result + (int) (temp ^ (temp >>> 32));
+		result = prime * result + Float.floatToIntBits(idf);
 		result = prime * result + ((label == null) ? 0 : label.hashCode());
 		result = prime * result + ((patientNum == null) ? 0 : patientNum.hashCode());
 		result = prime * result + ((term == null) ? 0 : term.hashCode());
@@ -148,12 +175,17 @@ public class IndexDocIdf {
 			return false;
 		if (frequency != other.frequency)
 			return false;
+		if (icSanchez == null) {
+			if (other.icSanchez != null)
+				return false;
+		} else if (!icSanchez.equals(other.icSanchez))
+			return false;
 		if (id == null) {
 			if (other.id != null)
 				return false;
 		} else if (!id.equals(other.id))
 			return false;
-		if (Double.doubleToLongBits(idf) != Double.doubleToLongBits(other.idf))
+		if (Float.floatToIntBits(idf) != Float.floatToIntBits(other.idf))
 			return false;
 		if (label == null) {
 			if (other.label != null)
@@ -344,6 +376,20 @@ public class IndexDocIdf {
 	 */
 	public void setFrequency(long frequency) {
 		this.frequency = frequency;
+	}
+
+	/**
+	 * @return the icSanchez
+	 */
+	public Double getIcSanchez() {
+		return icSanchez;
+	}
+
+	/**
+	 * @param icSanchez the icSanchez to set
+	 */
+	public void setIcSanchez(Double icSanchez) {
+		this.icSanchez = icSanchez;
 	}
 	
 

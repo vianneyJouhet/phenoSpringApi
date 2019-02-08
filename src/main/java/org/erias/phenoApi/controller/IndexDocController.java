@@ -18,6 +18,6 @@ public class IndexDocController {
 //	@CrossOrigin(origins = "http://localhost")
 	@RequestMapping(value= "/cohorte/list",method = RequestMethod.GET)
 	public List<String> listCohorte(){
-		return indexDocRepo.findDistinctCohorte();
+		return indexDocRepo.findDistinctCohorteAndCount();
 	}
 }

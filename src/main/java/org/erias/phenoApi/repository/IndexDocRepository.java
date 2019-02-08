@@ -4,6 +4,7 @@
 package org.erias.phenoApi.repository;
 
 import java.util.List;
+import java.util.Set;
 
 import org.erias.phenoApi.model.IndexDoc;
 import org.springframework.data.jpa.repository.Query;
@@ -17,8 +18,13 @@ public interface IndexDocRepository extends CrudRepository<IndexDoc, Long>,Index
 	
 	List<IndexDoc> findByCertaintyAndContextAndCohorte(String certainty,String context,String cohorte);
 	
+	List<IndexDoc> findByCertaintyAndContextAndCohorteAndCodeIn(String certainty,String context,String cohorte,Set<String> code);
+	
 	@Query("SELECT DISTINCT cohorte FROM IndexDoc")
 	List<String> findDistinctCohorte();
+	
+	@Query("SELECT  CONCAT(cohorte,CONCAT('-',count(distinct patientnum))) as ret FROM  IndexDoc group by cohorte")
+	List<String> findDistinctCohorteAndCount();
 	
 	Long countByCohorte(String cohorte);
 	
