@@ -35,4 +35,8 @@ public interface EntityRepository {
 
 	Set<EntityInGraph> findAllEntity();
 
+	Map<String, Set<String>> findAllUrisInThesaurusGraph();
+
+	EntityHierarchie findSuperClasses(Set<String> uris);
+
 }

@@ -97,21 +97,38 @@ public class CoocurenceServiceImpl implements CoocurenceService {
 		});
 		
 		CoocurenceMatrix coocurence = new CoocurenceMatrix();
-		entityHierarchies.keySet().forEach(g1 -> {
+		if(!cohorte.equals("None")) {
+			entityHierarchies.keySet().forEach(g1 -> {
+					coocurence.addAllCoocurencesFromIndexDocs(
+						indexDocIdfRepository.findByCertaintyAndContextAndCohorteAndCodeInAndInferedMetrics(
+								"1", "patient_text",
+								cohorte,
+								entityHierarchies.get(g1).getAllChilds(),false),
+						entityHierarchies.get(g1),
+						g1,
+						indexDocIdfRepository.findByCertaintyAndContextAndCohorteAndCodeInAndInferedMetrics(
+								"1", "patient_text",
+								cohorte,
+								CodeHierarchies.getAllChilds(),false),
+						CodeHierarchies,
+						"abc");
+			});
+		}else {
+			entityHierarchies.keySet().forEach(g1 -> {
 				coocurence.addAllCoocurencesFromIndexDocs(
-					indexDocIdfRepository.findByCertaintyAndContextAndCohorteAndCodeInAndInferedMetrics(
+					indexDocIdfRepository.findByCertaintyAndContextAndCodeInAndInferedMetrics(
 							"1", "patient_text",
-							cohorte,
 							entityHierarchies.get(g1).getAllChilds(),false),
 					entityHierarchies.get(g1),
 					g1,
-					indexDocIdfRepository.findByCertaintyAndContextAndCohorteAndCodeInAndInferedMetrics(
+					indexDocIdfRepository.findByCertaintyAndContextAndCodeInAndInferedMetrics(
 							"1", "patient_text",
-							cohorte,
 							CodeHierarchies.getAllChilds(),false),
 					CodeHierarchies,
 					"abc");
-		});
+			});
+			log.info("All cohorte");
+		}
 		return coocurence;
 	}
 	

@@ -18,7 +18,11 @@ public interface ThesaurusEnrsemRepository extends CrudRepository<ThesaurusEnrse
 	
 	List<ThesaurusEnrsem> findByIcSanchezLessThan(Double icSanchez);
 	
+	List<ThesaurusEnrsem> findByinferedMetricsAndFrequencyGreaterThanEqual(boolean inferred,long frequency);
+	
 	List<ThesaurusEnrsem> findByCodeIn(Set<String> code);
 	
 	List<ThesaurusEnrsem> findByInferedMetricsAndGraphAndCodeIn(boolean inferedMetrics,String graph,Set<String> code);
+	
+	List<ThesaurusEnrsem> findByInferedMetricsAndCodeIn(boolean inferedMetrics,Set<String> code);
 }

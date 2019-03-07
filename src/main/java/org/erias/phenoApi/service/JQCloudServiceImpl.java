@@ -10,12 +10,15 @@ import java.util.stream.Collectors;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.erias.phenoApi.model.EntityHierarchie;
 import org.erias.phenoApi.model.IndexDoc;
 import org.erias.phenoApi.model.IndexDocIdf;
 import org.erias.phenoApi.model.JQCloud;
+import org.erias.phenoApi.model.StatDocs;
 import org.erias.phenoApi.model.ThesaurusEnrsem;
 import org.erias.phenoApi.repository.IndexDocIdfRepository;
 import org.erias.phenoApi.repository.IndexDocRepository;
+import org.erias.phenoApi.repository.rdf4j.EntityRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -30,6 +33,11 @@ public class JQCloudServiceImpl implements JQCloudService {
 	private IndexDocRepository  indexDocRepo;
 	@Autowired
 	private IndexDocIdfService idfService;
+	@Autowired
+	private HoomService hoomService;
+	
+	@Autowired
+	private EntityRepository entityRepository;
 	
 	/* (non-Javadoc)
 	 * @see org.erias.phenoApi.service.JQCloudService#getJQCloud(java.lang.String)
@@ -42,12 +50,57 @@ public class JQCloudServiceImpl implements JQCloudService {
 		long nbConceptTot = indexDocRepo.countByCertaintyAndContextAndCohorte("1", "patient_text",cohorte);
 		return getJqCloudFromIndexDocIdfs(idDocIdfs, nbConceptTot);
 	}
+	
+	@Override
+	public Map<String,Set<Object>>  getAllJQCloud() {
+		
+		List<IndexDocIdf> idDocIdfs =  (List<IndexDocIdf>) indexDocIdfRepo.findByCertaintyAndContextAndInferedMetricsAndFrequencyGreaterThan("1", "patient_text",false,Long.parseLong("1"));
+		log.info(idDocIdfs.size());
+		long nbConceptTot = indexDocRepo.countByCertaintyAndContext("1", "patient_text");
+		return getJqCloudFromIndexDocIdfs(idDocIdfs, nbConceptTot);
+	}
+	
+	@Override
+	public Map<String,Set<Object>>  getJQCloudByCodes(List<String> uris) {
+		
+		EntityHierarchie entityHierarchie = entityRepository.findSubClasses(uris.stream().collect(Collectors.toSet()));
+		Set<String> patientNums = indexDocRepo.findByCertaintyAndContextAndCodeIn("1", "patient_text",entityHierarchie.getAllChilds())
+				.stream().map(IndexDoc::getPatientNum).distinct().collect(Collectors.toSet());
+		List<IndexDocIdf> idDocIdfs =  (List<IndexDocIdf>) indexDocIdfRepo
+				.findByCertaintyAndContextAndInferedMetricsAndPatientNumIn("1", "patient_text",false,
+				patientNums);
+		log.info(idDocIdfs.size());
+		long nbConceptTot = indexDocRepo.countByCertaintyAndContextAndPatientNumIn("1", "patient_text",patientNums);
+		return getJqCloudFromIndexDocIdfs(idDocIdfs, nbConceptTot);
+	}
 
 	@Override
 	public Map<String,Set<Object>>  getJQCloudAggByIcForGraph(String cohorte,Double icSanchez, String graph) {
 		
 		List<IndexDocIdf> idDocIdfs =idfService.findByIcInHierarchieInGraph(cohorte, icSanchez, graph);
 		long nbConceptTot = indexDocRepo.countByCertaintyAndContextAndCohorte("1", "patient_text",cohorte);
+		return getJqCloudFromIndexDocIdfs(idDocIdfs, nbConceptTot);
+	}
+	
+	
+	@Override
+	public Map<String,Set<Object>>  getJQCloudByCodesAggByHoom(List<String> uris) {
+		EntityHierarchie entityHierarchie = entityRepository.findSubClasses(uris.stream().collect(Collectors.toSet()));
+		Set<String> patientNums = indexDocRepo.findByCertaintyAndContextAndCodeIn("1", "patient_text",entityHierarchie.getAllChilds())
+				.stream().map(IndexDoc::getPatientNum).distinct().collect(Collectors.toSet());
+		
+		List<IndexDocIdf> idDocIdfs = hoomService.aggByHoom(uris.stream().collect(Collectors.toSet()),patientNums);
+		return getJqCloudFromIndexDocIdfs(idDocIdfs, (long)idDocIdfs.size());
+	}
+	
+	@Override
+	public Map<String,Set<Object>>  getJQCloudAggByUrisAndIcForGraph(Set<String> uris,Double icSanchez, String graph) {
+		
+		EntityHierarchie entityHierarchie = entityRepository.findSubClasses(uris.stream().collect(Collectors.toSet()));
+		Set<String> patientNums = indexDocRepo.findByCertaintyAndContextAndCodeIn("1", "patient_text",entityHierarchie.getAllChilds())
+				.stream().map(IndexDoc::getPatientNum).distinct().collect(Collectors.toSet());
+		List<IndexDocIdf> idDocIdfs =idfService.findByIcInHierarchieInGraph(patientNums, icSanchez, graph);
+		long nbConceptTot = indexDocRepo.countByCertaintyAndContextAndPatientNumIn("1", "patient_text",patientNums);
 		return getJqCloudFromIndexDocIdfs(idDocIdfs, nbConceptTot);
 	}
 	
@@ -145,7 +198,19 @@ public class JQCloudServiceImpl implements JQCloudService {
 		jqclouds.put("tf", CalculateTfJQCloudFromIndexDoc(idDocIdfs, labelMap));
 		jqclouds.put("tfidf", CalculateTfIdfJQCloudFromIndexDoc(idDocIdfs, labelMap, nbConceptTot, thesaurus));
 		jqclouds.put("tab", getTabFromIndexDocIdf(idDocIdfs, nbConceptTot, thesaurus));
+		jqclouds.put("globalStat", getStatFromIndexDocIdf(idDocIdfs));
 				
 		return jqclouds;
+		
+	}
+	
+	private Set<Object> getStatFromIndexDocIdf(List<IndexDocIdf> idDocIdfs) {
+		HashSet<Object> statDocs = new HashSet<Object>();
+		StatDocs statDoc =new StatDocs();
+		statDoc.setNbPat(idDocIdfs.stream().map(IndexDocIdf::getPatientNum).distinct().count());
+		statDoc.setNbDocs(idDocIdfs.stream().map(IndexDocIdf::getDocumentNum).distinct().count());
+		statDoc.setNbConcept(idDocIdfs.stream().count());
+		statDocs.add(statDoc);
+		return statDocs;
 	}
 }

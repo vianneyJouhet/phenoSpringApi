@@ -26,6 +26,8 @@ public interface ThesaurusEnrsemService {
 	Map<String, ThesaurusEnrsem> findEnrsemByCodesInHierarchie(EntityHierarchie entityHierarchie);
 
 	Map<String, ThesaurusEnrsem> findEnrsemInferredByCodesIn(Set<String> codes, String graph);
+
+	Map<String, ThesaurusEnrsem> findEnrsemInferredByCodesIn(Set<String> codes);
 	
 
 }

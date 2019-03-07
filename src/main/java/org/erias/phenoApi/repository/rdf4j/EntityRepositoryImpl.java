@@ -10,6 +10,7 @@ import java.util.stream.Collectors;
 
 import javax.management.StringValueExp;
 
+import org.eclipse.rdf4j.query.Binding;
 import org.eclipse.rdf4j.query.BindingSet;
 import org.erias.phenoApi.model.EntityHierarchie;
 import org.erias.phenoApi.model.EntityInGraph;
@@ -50,9 +51,32 @@ public class EntityRepositoryImpl extends RDF4JRepositoryImpl implements EntityR
 				" }";
 		return query;
 	}
+	
+	private String prepareQueryFindSuperClasses(Set<String> uris) {
+		String query = ""
+				+ "select ?pere ?fils\n" + 
+				"{\n" + 
+				"  VALUES ?fils {"+toUriList(uris)+"}\n" + 
+				"  ?fils rdfs:subClassOf+ ?pere       \n" + 
+				" }";
+		return query;
+	}
 	@Override
 	public EntityHierarchie findSubClasses(Set<String> uris) {
 		String query =prepareQueryFindSubClasses(uris);
+		
+		
+		EntityHierarchie entityHierarchie =new EntityHierarchie();
+		execSelectQuery(query).forEach(b -> {
+			entityHierarchie.addEntityHierarchie(b.getValue("pere").stringValue(), b.getValue("fils").stringValue());
+		});
+		
+		return entityHierarchie ;
+	}
+	
+	@Override
+	public EntityHierarchie findSuperClasses(Set<String> uris) {
+		String query =prepareQueryFindSuperClasses(uris);
 		
 		
 		EntityHierarchie entityHierarchie =new EntityHierarchie();
@@ -88,6 +112,25 @@ public class EntityRepositoryImpl extends RDF4JRepositoryImpl implements EntityR
 		});
 		
 		return entityHierarchie ;
+	}
+	
+	@Override
+	public Map<String,Set<String>> findAllUrisInThesaurusGraph() {
+		String query = "\n" 
+				+ "prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#>\n"
+				+ "prefix skos: <http://www.w3.org/2004/02/skos/core#>\n"
+				+ "prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>\n" 
+				+ "\n"
+				+ "select distinct ?g ?uri\n"  
+				+ "{\n"
+				+ "		?g a <http://erias.org/thesaurus> .\n"
+				+ "		GRAPH ?g {\n"
+				+ "			?uri ?p ?q \n "
+				+ "		}\n"
+				+ "}\n";
+		return execSelectQuery(query).stream().collect(Collectors.groupingBy(b -> b.getValue("uri").stringValue(),
+				Collectors.mapping(b -> b.getValue("g").stringValue(), Collectors.toSet())));
+		
 	}
 	
 	@Override
@@ -262,7 +305,7 @@ public class EntityRepositoryImpl extends RDF4JRepositoryImpl implements EntityR
 				+ "		GRAPH ?g {\n"
 				+ "			?uri ?p ?q . \n"
 				+ "		}\n"
-				+ "		?uri rdfs:label|skos:prefLabel|skos:altLabel ?l . \n"
+				+ "		?uri rdfs:label|skos:prefLabel|skos:altLabel|<http://www.ebi.ac.uk/efo/alternative_term> ?l . \n"
 				+ "		?uri ?typelab ?l \n"
 				+ "		BIND ( str(?l) as ?label) \n"
 				+ "		BIND ( lang(?l) as ?lang) \n"

@@ -15,4 +15,12 @@ public interface IndexDocIdfService {
 	List<IndexDocIdf> findByCodesInHierarchie(EntityHierarchie entityHierarchie,
 			Map<String, ThesaurusEnrsem> thesaurusEnrsems, String cohorte);
 
+	List<IndexDocIdf> findByCodesInHierarchie(EntityHierarchie entityHierarchie,
+			Map<String, ThesaurusEnrsem> thesaurusEnrsems, Set<String> patientNums);
+
+	List<IndexDocIdf> findByIcInHierarchieInGraph(Set<String> patientNums, Double icSanchez, String graph);
+
+	
+	List<IndexDocIdf> findByPatientNumAndCodesInHierarchie(EntityHierarchie entityHierarchie, Set<String> patientNums);
+
 }

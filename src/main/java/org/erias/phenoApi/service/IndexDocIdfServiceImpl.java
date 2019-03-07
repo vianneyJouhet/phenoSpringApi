@@ -45,6 +45,15 @@ public class IndexDocIdfServiceImpl implements IndexDocIdfService {
 		return findByCodesInHierarchie(entityHierarchie,thesaurusEnrsems,cohorte);
 	}
 	
+	@Override
+	public List<IndexDocIdf> findByIcInHierarchieInGraph(Set<String> patientNums,Double icSanchez,String graph){
+		
+		EntityHierarchie entityHierarchie=entityRepository.findAllEntityHierarchieByIcSanchezLowerOrEqualThanInGraph(graph, icSanchez).setDeepestAncestors();
+		Map<String,ThesaurusEnrsem> thesaurusEnrsems = thesaurusEnrsemService.findEnrsemInferredByCodesIn(entityHierarchie.getAllAncestors(), graph);
+		log.info(thesaurusEnrsems.size());
+		return findByCodesInHierarchie(entityHierarchie,thesaurusEnrsems,patientNums);
+	}
+	
 	/* (non-Javadoc)
 	 * @see org.erias.phenoApi.service.IndexDocIdfService#findByCodesInHierarchie(org.erias.phenoApi.model.EntityHierarchie, java.util.Map, java.lang.String)
 	 */
@@ -60,6 +69,69 @@ public class IndexDocIdfServiceImpl implements IndexDocIdfService {
 		.stream()
 		.forEach(iDocAgg -> {
 			entityHierarchie.getDeepestAncestors(iDocAgg.getCode()).forEach(ancestor -> {
+					log.info(ancestor);
+//						log.info(ancestor);
+//						log.info(thesaurusEnrsems.get(ancestor));
+						iDocAgg.setCode(ancestor);
+						iDocAgg.setFrequency(thesaurusEnrsems.get(ancestor).getFrequency());
+						iDocAgg.setIdf(thesaurusEnrsems.get(ancestor).getIdf());
+						iDocAgg.setLabel(thesaurusEnrsems.get(ancestor).getLabel());
+						IndexDocIdfAgg.add(iDocAgg);
+			});
+		});
+		sw.stop();
+		log.info(sw.prettyPrint());
+		return IndexDocIdfAgg;
+	}
+	
+	@Override
+	public List<IndexDocIdf> findByPatientNumAndCodesInHierarchie(EntityHierarchie entityHierarchie,Set<String> patientNums){
+		StopWatch sw = new StopWatch();
+		sw.start("retrieve data");
+		
+		Map<String,ThesaurusEnrsem> thesaurusEnrsems = thesaurusEnrsemService.findEnrsemInferredByCodesIn(entityHierarchie.getAllAncestors(),"http://erias.org/hpo");
+		List<IndexDocIdf> IndexDocIdfAgg = new ArrayList<IndexDocIdf>();
+		List<IndexDocIdf> indexdocIdf =  (List<IndexDocIdf>) indexDocIdfRepo
+				.findByCertaintyAndContextAndInferedMetricsAndPatientNumIn("1", "patient_text",false,
+				patientNums);
+		log.info(patientNums.size());
+		sw.stop();
+		sw.start("aggregate data");
+		
+		indexdocIdf
+		.stream()
+		.forEach(iDocAgg -> {
+			if (entityHierarchie.getAllChilds().contains(iDocAgg.getCode())){
+				entityHierarchie.getDeepestAncestors(iDocAgg.getCode()).forEach(ancestor -> {
+//					log.info(ancestor);
+//						log.info(ancestor);
+//						log.info(thesaurusEnrsems.get(ancestor));
+						iDocAgg.setCode(ancestor);
+						iDocAgg.setFrequency(thesaurusEnrsems.get(ancestor).getFrequency());
+						iDocAgg.setIdf(thesaurusEnrsems.get(ancestor).getIdf());
+						iDocAgg.setLabel(thesaurusEnrsems.get(ancestor).getLabel());	
+				});
+			}
+			IndexDocIdfAgg.add(iDocAgg);
+		});
+		sw.stop();
+		log.info(sw.prettyPrint());
+		return IndexDocIdfAgg;
+	}
+	
+	@Override
+	public List<IndexDocIdf> findByCodesInHierarchie(EntityHierarchie entityHierarchie,Map<String,ThesaurusEnrsem> thesaurusEnrsems,Set<String> patientNums){
+		StopWatch sw = new StopWatch();
+		sw.start("retrieve data");
+		List<IndexDocIdf> IndexDocIdfAgg = new ArrayList<IndexDocIdf>();
+		List<IndexDocIdf> indexdocIdf=indexDocIdfRepo.findByCertaintyAndContextAndPatientNumInAndCodeIn("1", "patient_text",patientNums,entityHierarchie.getAllChilds());
+		sw.stop();
+		sw.start("aggregate data");
+		indexdocIdf
+		.stream()
+		.forEach(iDocAgg -> {
+			entityHierarchie.getDeepestAncestors(iDocAgg.getCode()).forEach(ancestor -> {
+					log.info(ancestor);
 //						log.info(ancestor);
 //						log.info(thesaurusEnrsems.get(ancestor));
 						iDocAgg.setCode(ancestor);

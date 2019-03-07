@@ -28,4 +28,5 @@
 /src/main/java/config/
 /logs/
 /src/main/resources/extract/
+/src/main/resources/extract1/
 /src/main/resources/application.properties

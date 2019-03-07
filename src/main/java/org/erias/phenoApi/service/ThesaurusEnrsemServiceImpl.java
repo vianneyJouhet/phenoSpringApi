@@ -217,4 +217,13 @@ public class ThesaurusEnrsemServiceImpl implements ThesaurusEnrsemService {
 				
 		return thesaurusEnrsems;
 	}
+	
+	@Override
+	public Map<String, ThesaurusEnrsem> findEnrsemInferredByCodesIn(Set<String> codes){
+		Map<String,ThesaurusEnrsem> thesaurusEnrsems =thesaurusEnrsemRepository.findByInferedMetricsAndCodeIn(true, codes)
+				.stream().collect(Collectors.toMap(ThesaurusEnrsem::getCode, x -> x));
+				
+				
+		return thesaurusEnrsems;
+	}
 }
