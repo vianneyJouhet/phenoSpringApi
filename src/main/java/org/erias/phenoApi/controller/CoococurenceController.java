@@ -1,7 +1,5 @@
 package org.erias.phenoApi.controller;
 
-import java.util.HashSet;
-import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -14,18 +12,12 @@ import org.erias.phenoApi.model.ForceNode;
 import org.erias.phenoApi.model.Post2CohorteGraphIC;
 import org.erias.phenoApi.model.PostCohorteGraphIC;
 import org.erias.phenoApi.model.PostCohorteGraphICCode;
-import org.erias.phenoApi.model.PostGetCoocurence;
 import org.erias.phenoApi.service.CoocurenceService;
-import org.erias.phenoApi.service.CoocurenceServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
-
-import com.sun.tools.sjavac.Log;
-
-import io.swagger.annotations.ApiParam;
 
 @RestController
 public class CoococurenceController {

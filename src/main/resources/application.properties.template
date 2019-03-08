@@ -1,10 +1,10 @@
-spring.datasource.url= 
+spring.datasource.url=
 spring.datasource.username= 
 spring.datasource.password= 
 
 spring.jpa.properties.hibernate.dialect= org.hibernate.dialect.PostgreSQLDialect
 
-spring.jpa.hibernate.ddl-auto= none
+spring.jpa.hibernate.ddl-auto= update
 spring.jpa.properties.hibernate.temp.use_jdbc_metadata_defaults=false
 spring.jpa.properties.hibernate.jdbc.batch_size=10000
 spring.jpa.properties.hibernate.generate_statistics=false
@@ -20,3 +20,7 @@ sparql.protocol=
 sparql.domain = 
 sparql.port = 
 sparql.endpoint = 
+
+#ElasticSearch config
+spring.data.elasticsearch.cluster-nodes=
+spring.data.elasticsearch.cluster-name=
